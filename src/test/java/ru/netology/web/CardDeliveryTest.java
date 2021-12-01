@@ -2,6 +2,7 @@ package ru.netology.web;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -17,40 +18,30 @@ public class CardDeliveryTest {
         open("http://localhost:9999");
     }
 
-    public String getToday() {
-        LocalDate today = LocalDate.now();
-        return today.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-    }
-
-    public String getValidDate() {
-        LocalDate allowedDate = LocalDate.now().plusDays(3);
-        return allowedDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-    }
-
-    public String getEarlyDate() {
-        LocalDate earlyDate = LocalDate.now().minusDays(3);
-        return earlyDate.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+    public String generateDate(int days) {
+        return LocalDate.now().plusDays(days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
     @Test
     void shouldSendForm() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
         $$("button").find(exactText("Забронировать")).click();
         $("[data-test-id=notification]").shouldBe(visible, Duration.ofSeconds(15));
-        String selectedDate = $("[data-test-id=date] input").val();
-        $(".notification__content").shouldHave(text("Встреча успешно забронирована на " + selectedDate));
+        $(".notification__content").shouldHave(text("Встреча успешно забронирована на " + planningDate));
     }
 
     @Test
     void shouldValidateWithNotAdministrativeCentre() {
         $("[data-test-id=city] input").setValue("Бердск");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -61,8 +52,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateCityWithLatinLetters() {
         $("[data-test-id=city] input").setValue("Moscow");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -72,8 +64,9 @@ public class CardDeliveryTest {
 
     @Test
     void shouldValidateEmptyCity() {
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -84,8 +77,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateEarlyDate() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getEarlyDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(-3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -96,8 +90,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateToday() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getToday());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(0);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -108,7 +103,7 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateInvalidDate() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
         $("[data-test-id=date] input").setValue("31.13.5656");
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
@@ -120,7 +115,7 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateEmptyDate() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -131,8 +126,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateNameWithLatinLetters() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Ivan");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -143,8 +139,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateNameWithNumbers() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван777");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -155,8 +152,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateNameWithForbiddenSymbols() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван&^%$*");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
@@ -167,22 +165,23 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateNameWithHyphens() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров-Водкин");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
         $$("button").find(exactText("Забронировать")).click();
         $("[data-test-id=notification]").shouldBe(visible, Duration.ofSeconds(15));
-        String selectedDate = $("[data-test-id=date] input").val();
-        $(".notification__content").shouldHave(text("Встреча успешно забронирована на " + selectedDate));
+        $(".notification__content").shouldHave(text("Встреча успешно забронирована на " + planningDate));
     }
 
     @Test
     void shouldValidateEmptyName() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=phone] input").setValue("+79000000000");
         $("[data-test-id=agreement]").click();
         $$("button").find(exactText("Забронировать")).click();
@@ -192,8 +191,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidatePhoneFieldWithoutPlus() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("79000000000");
         $("[data-test-id=agreement]").click();
@@ -204,8 +204,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidatePhoneFieldWithTooManyNumbers() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+7900000000000000");
         $("[data-test-id=agreement]").click();
@@ -216,8 +217,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidatePhoneFieldWithTooFewNumbers() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+7900");
         $("[data-test-id=agreement]").click();
@@ -228,8 +230,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateEmptyPhone() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=agreement]").click();
         $$("button").find(exactText("Забронировать")).click();
@@ -239,8 +242,9 @@ public class CardDeliveryTest {
     @Test
     void shouldValidateAgreement() {
         $("[data-test-id=city] input").setValue("Казань");
-        $("[data-test-id=date] input").doubleClick().sendKeys("Backspace");
-        $("[data-test-id=date] input").setValue(getValidDate());
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String planningDate = generateDate(3);
+        $("[data-test-id=date] input").setValue(planningDate);
         $("[data-test-id=name] input").setValue("Иван Петров");
         $("[data-test-id=phone] input").setValue("+79000000000");
         $$("button").find(exactText("Забронировать")).click();
